@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<title>SED apstrādes gaita</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 12px; background: #808080; user-select: none; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* MDI */
+  .mdi { flex:1;background:#808080;overflow:auto;padding:4px; }
+
+  /* Form window */
+  .fw { background:#d4d0c8;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;min-width:780px; }
+  .fw-title { background:linear-gradient(to right,#000080,#1a6ea5);color:#fff;font-size:11px;font-weight:bold;padding:2px 6px;height:18px;display:flex;align-items:center;justify-content:space-between; }
+  .fw-btns { display:flex;gap:2px; }
+  .fb { width:14px;height:12px;background:#c0c0c0;border-top:1px solid #fff;border-left:1px solid #fff;border-right:1px solid #404040;border-bottom:1px solid #404040;font-size:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#000; }
+
+  /* Form content */
+  .fc { padding:5px 6px 6px;display:flex;flex-direction:column;gap:4px; }
+
+  /* Block */
+  .blk { border:2px groove #808080;background:#d4d0c8;padding:4px 5px 5px; }
+  .blk-t { font-size:11px;font-weight:bold;color:#000;margin-bottom:4px; }
+
+  /* Grid */
+  .grid { border-top:1px solid #404040;border-left:1px solid #404040;border-right:1px solid #fff;border-bottom:1px solid #fff;background:#fff;overflow:hidden; }
+  .grid table { width:100%;border-collapse:collapse;table-layout:fixed; }
+  .grid th { background:#d4d0c8;border-right:1px solid #808080;border-bottom:2px solid #404040;padding:1px 3px;text-align:left;font-weight:bold;font-size:11px;vertical-align:bottom;white-space:pre-line;color:#000040;height:28px;font-family:Arial,sans-serif; }
+  .grid th:last-child { border-right:none; }
+  .grid td { border-right:1px solid #c0bdb4;border-bottom:1px solid #c0bdb4;padding:0;height:17px;vertical-align:middle;background:#fff;position:relative;font-family:Arial,sans-serif;font-size:11px; }
+  .grid td:last-child { border-right:none; }
+  .grid tr.sel td { background:#000080;color:#fff; }
+  .grid tr.sel td .ct { color:#fff; }
+  .grid tr:hover:not(.sel) td { background:#ddeeff;cursor:pointer; }
+
+  /* Cell types */
+  .cwb { display:flex;align-items:stretch;height:100%; }
+  .ct { flex:1;padding:0 2px;overflow:hidden;white-space:nowrap;line-height:17px;font-size:11px; }
+  .db { width:15px;min-width:15px;height:100%;background:#c0bdb4;border:none;border-left:1px solid #808080;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0; }
+  .db:hover { background:#b0ada4; }
+  .db:active { background:#a09d94; }
+  .pc { display:block;padding:0 2px;line-height:17px;overflow:hidden;white-space:nowrap;font-size:11px; }
+  .cc { display:flex;align-items:center;justify-content:center;height:100%; }
+  .cc input { cursor:pointer;width:12px;height:12px;accent-color:#000080; }
+
+  /* Layout */
+  .mr { display:flex;gap:4px;align-items:stretch; }
+  .ml { flex:1; }
+  .bp { border:2px groove #808080;background:#d4d0c8;padding:8px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:188px; }
+  .bc { display:flex;justify-content:center;margin-top:4px; }
+
+  /* Oracle buttons */
+  .ob { background:#d4d0c8;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;font-family:Arial,sans-serif;font-size:11px;color:#000;padding:3px 8px;cursor:pointer;white-space:nowrap;min-width:168px;text-align:center; }
+  .ob:hover { background:#e0ddd4; }
+  .ob:active { border-top:2px solid #404040;border-left:2px solid #404040;border-right:2px solid #fff;border-bottom:2px solid #fff; }
+
+  /* Status bar */
+  .sb { background:#d4d0c8;border-top:1px solid #808080;height:20px;display:flex;align-items:center;flex-shrink:0;font-size:11px; }
+  .sc { padding:0 6px;border-right:1px solid #808080;border-left:1px solid #fff;height:100%;display:flex;align-items:center;white-space:nowrap; }
+  .sc:first-child { border-left:none; }
+  .sm { flex:1;padding:0 6px;font-size:11px;color:#000080; }
+  .smd { padding:0 8px;border-left:1px solid #808080;font-weight:bold;color:#000; }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width:16px;height:16px; }
+  ::-webkit-scrollbar-track { background:#d4d0c8;border:1px inset #808080; }
+  ::-webkit-scrollbar-thumb { background:#c0c0c0;border-top:2px solid #fff;border-left:2px solid #fff;border-right:1px solid #404040;border-bottom:1px solid #404040; }
+  ::-webkit-scrollbar-button { background:#c0c0c0;border-top:1px solid #fff;border-left:1px solid #fff;border-right:1px solid #404040;border-bottom:1px solid #404040;height:16px; }
+
+  /* Dropdown popup */
+  .dp { display:none;position:fixed;background:#fff;border:1px solid #404040;box-shadow:2px 2px 3px rgba(0,0,0,0.4);z-index:9999;min-width:130px;font-size:11px;font-family:Arial,sans-serif; }
+  .dp.vis { display:block; }
+  .dpi { padding:2px 6px;cursor:pointer; }
+  .dpi:hover { background:#000080;color:#fff; }
+
+  /* Modal */
+  .mo { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:10000;align-items:center;justify-content:center; }
+  .mo.vis { display:flex; }
+  .mb { background:#d4d0c8;border-top:2px solid #fff;border-left:2px solid #fff;border-right:2px solid #404040;border-bottom:2px solid #404040;min-width:380px;max-width:580px; }
+  .mt { background:linear-gradient(to right,#000080,#1a6ea5);color:white;font-size:11px;font-weight:bold;padding:2px 4px;display:flex;justify-content:space-between;align-items:center;height:18px; }
+  .mc { background:#c0c0c0;color:#000;font-size:9px;font-weight:bold;cursor:pointer;width:14px;height:12px;line-height:10px;text-align:center;padding:0;border:none;border-top:1px solid #fff;border-left:1px solid #fff;border-right:1px solid #404040;border-bottom:1px solid #404040; }
+  .mbody { margin:6px;padding:6px;background:#fff;border-top:1px solid #404040;border-left:1px solid #404040;border-right:1px solid #fff;border-bottom:1px solid #fff;font-size:10px;font-family:'Courier New',monospace;white-space:pre-wrap;word-break:break-all;max-height:280px;overflow-y:auto;color:#000; }
+  .mf { display:flex;justify-content:center;padding:4px 6px 6px; }
+
+  /* Nav JINA red text in header */
+  .nav-jina { color:#cc0000;font-weight:bold;font-size:11px; }
+</style>
+</head>
+<body>
+
+<!-- MDI Container -->
+<div class="mdi">
+  <div class="fw">
+    <!-- Form inner title bar -->
+    <div class="fw-title">
+      <span>SED apstrādes gaita</span>
+      <div class="fw-btns">
+        <div class="fb">_</div>
+        <div class="fb">□</div>
+        <div class="fb" style="font-size:7px;">✕</div>
+      </div>
+    </div>
+
+    <!-- Form content -->
+    <div class="fc">
+
+      <!-- Block 1: Notikumu saraksts -->
+      <div class="blk">
+        <div class="grid">
+          <table>
+            <colgroup>
+              <col style="width:68px">
+              <col style="width:110px">
+              <col style="width:88px">
+              <col style="width:180px">
+              <col style="width:68px">
+              <col style="width:128px">
+              <col style="width:52px">
+              <col style="width:auto">
+            </colgroup>
+            <thead>
+              <tr>
+                <th colspan="7" style="font-size:12px;font-weight:bold;color:#000;border-bottom:1px solid #808080;padding:3px 4px;">Notikumu saraksts</th>
+                <th style="border-bottom:1px solid #808080;vertical-align:middle;text-align:left;"><span class="nav-jina">Nav JINA</span></th>
+              </tr>
+              <tr>
+                <th>Lietas Nr.&#10;(RINA)</th>
+                <th>RINA ID</th>
+                <th>Notikums</th>
+                <th>Dokumenta tips</th>
+                <th>Virziens</th>
+                <th>Notikuma laiks</th>
+                <th>SED&#10;versija</th>
+                <th>Apstrādes statuss</th>
+              </tr>
+            </thead>
+            <tbody id="bn"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Middle row -->
+      <div class="mr">
+        <!-- Block 2: Apstrādes reizes -->
+        <div class="blk ml">
+          <div class="blk-t">Apstrādes reizes</div>
+          <div class="grid">
+            <table>
+              <colgroup>
+                <col style="width:130px">
+                <col style="width:150px">
+                <col style="width:auto">
+              </colgroup>
+              <thead><tr>
+                <th>Apstrādes laiks</th>
+                <th>Apstrādes statuss</th>
+                <th>Lietotājs</th>
+              </tr></thead>
+              <tbody id="br"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Buttons -->
+        <div class="bp">
+          <button class="ob" onclick="showModal('Atskaite','Nav datu atskaites ģenerēšanai.\n\nLūdzu, izvēlieties ierakstu no Notikumu saraksta.')">Sagatavot atskaiti</button>
+          <button class="ob" onclick="showSedJson()">SED saturs (JSON)</button>
+        </div>
+      </div>
+
+      <!-- Block 3: Apstrādes gaita -->
+      <div class="blk">
+        <div class="blk-t">Apstrādes gaita</div>
+        <div class="grid">
+          <table>
+            <colgroup>
+              <col style="width:auto">
+              <col style="width:128px">
+              <col style="width:108px">
+              <col style="width:44px">
+            </colgroup>
+            <thead><tr>
+              <th>Ziņojums</th>
+              <th>Ziņojuma laiks</th>
+              <th>Ziņojuma tips</th>
+              <th style="text-align:center">JSON</th>
+            </tr></thead>
+            <tbody id="bg"></tbody>
+          </table>
+        </div>
+        <div class="bc">
+          <button class="ob" style="min-width:190px" onclick="showDatuBloks()">Apskatīt datu bloku (JSON)</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div class="sb">
+  <div class="sc" id="sb-blk">NOTIKUMI</div>
+  <div class="sc" id="sb-rec">Ieraksts 1/5</div>
+  <div class="sm" id="sb-msg">Forma ielādēta veiksmīgi.</div>
+  <div class="smd">NORMĀLS</div>
+</div>
+
+<!-- Dropdown -->
+<div class="dp" id="ddp">
+  <div class="dpi" onclick="selDrop('')">&nbsp;(tukšs)</div>
+  <div class="dpi" onclick="selDrop('Vērtība 1')">&nbsp;Vērtība 1</div>
+  <div class="dpi" onclick="selDrop('Vērtība 2')">&nbsp;Vērtība 2</div>
+  <div class="dpi" onclick="selDrop('Vērtība 3')">&nbsp;Vērtība 3</div>
+</div>
+
+<!-- Modal -->
+<div class="mo" id="mo" onclick="bgClose(event)">
+  <div class="mb">
+    <div class="mt"><span id="mtitle">Info</span><button class="mc" onclick="closeModal()">✕</button></div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mf"><button class="ob" style="min-width:80px" onclick="closeModal()">Aizvērt</button></div>
+  </div>
+</div>
+
+<script>
+const ARR=`<svg width="9" height="8" viewBox="0 0 9 8"><polygon points="1,1 8,1 4.5,7" fill="#000060"/></svg>`;
+
+function mkDrop(txt=''){
+  const d=document.createElement('div');d.className='cwb';
+  const s=document.createElement('span');s.className='ct';s.textContent=txt;
+  const b=document.createElement('button');b.className='db';b.innerHTML=ARR;
+  b.addEventListener('click',e=>{e.stopPropagation();openDrop(e,s);});
+  d.appendChild(s);d.appendChild(b);return d;
+}
+function mkPlain(txt=''){
+  const s=document.createElement('span');s.className='pc';s.textContent=txt;return s;
+}
+function mkCheck(chk=false){
+  const d=document.createElement('div');d.className='cc';
+  const c=document.createElement('input');c.type='checkbox';c.checked=chk;
+  c.addEventListener('click',e=>e.stopPropagation());d.appendChild(c);return d;
+}
+function mkSelectable(tbody,blkName){
+  tbody.addEventListener('click',e=>{
+    const row=e.target.closest('tr');if(!row)return;
+    const rows=[...tbody.querySelectorAll('tr')];
+    rows.forEach(r=>r.classList.remove('sel'));row.classList.add('sel');
+    document.getElementById('sb-blk').textContent=blkName;
+    document.getElementById('sb-rec').textContent='Ieraksts '+(rows.indexOf(row)+1)+'/'+rows.length;
+  });
+}
+
+// Notikumu saraksts
+(function(){
+  const t=document.getElementById('bn');
+  const cols=['p','p','p','d','d','p','p','d'];
+  for(let r=0;r<5;r++){
+    const tr=document.createElement('tr');if(r===0)tr.classList.add('sel');
+    cols.forEach(c=>{const td=document.createElement('td');td.appendChild(c==='d'?mkDrop():mkPlain());tr.appendChild(td);});
+    t.appendChild(tr);
+  }
+  mkSelectable(t,'NOTIKUMI');
+})();
+
+// Apstrādes reizes
+(function(){
+  const t=document.getElementById('br');
+  for(let r=0;r<5;r++){
+    const tr=document.createElement('tr');if(r===0)tr.classList.add('sel');
+    ['p','d','p'].forEach(c=>{const td=document.createElement('td');td.appendChild(c==='d'?mkDrop():mkPlain());tr.appendChild(td);});
+    t.appendChild(tr);
+  }
+  mkSelectable(t,'APSTR_REIZES');
+})();
+
+// Apstrādes gaita
+(function(){
+  const t=document.getElementById('bg');
+  for(let r=0;r<7;r++){
+    const tr=document.createElement('tr');if(r===0)tr.classList.add('sel');
+    const td1=document.createElement('td');td1.appendChild(r===0?mkDrop():mkPlain());tr.appendChild(td1);
+    const td2=document.createElement('td');td2.appendChild(mkPlain());tr.appendChild(td2);
+    const td3=document.createElement('td');td3.appendChild(mkPlain());tr.appendChild(td3);
+    const td4=document.createElement('td');td4.appendChild(mkCheck(r===0));tr.appendChild(td4);
+    t.appendChild(tr);
+  }
+  mkSelectable(t,'GAITA');
+})();
+
+// Dropdown
+let activeDT=null;
+function openDrop(e,span){
+  activeDT=span;
+  const p=document.getElementById('ddp');p.classList.add('vis');
+  const r=e.target.closest('button').getBoundingClientRect();
+  p.style.left=r.left+'px';p.style.top=r.bottom+'px';
+}
+function selDrop(v){
+  if(activeDT){activeDT.textContent=v;activeDT=null;}
+  document.getElementById('ddp').classList.remove('vis');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.db')&&!e.target.closest('#ddp')){
+    document.getElementById('ddp').classList.remove('vis');activeDT=null;
+  }
+});
+
+// Modal
+function showModal(title,text){
+  document.getElementById('mtitle').textContent=title;
+  document.getElementById('mbody').textContent=text;
+  document.getElementById('mo').classList.add('vis');
+}
+function closeModal(){document.getElementById('mo').classList.remove('vis');}
+function bgClose(e){if(e.target===document.getElementById('mo'))closeModal();}
+function showSedJson(){showModal('SED saturs (JSON)',JSON.stringify({SED:{versija:"1.0",tips:"",saturs:{},laiks:new Date().toISOString(),statuss:"Nav datu"}},null,2));}
+function showDatuBloks(){showModal('Datu bloks (JSON)',JSON.stringify({apstradesGaita:[],ziņojumi:[],laiks:new Date().toISOString(),info:"Nav apstrādes datu"},null,2));}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){e.preventDefault();navRow('next');}
+  if(e.key==='ArrowUp'){e.preventDefault();navRow('prev');}
+});
+function navRow(dir){
+  const sel=document.querySelector('.grid tbody tr.sel');if(!sel)return;
+  const rows=[...sel.closest('tbody').querySelectorAll('tr')];
+  let i=rows.indexOf(sel);
+  if(dir==='next')i=Math.min(rows.length-1,i+1);else i=Math.max(0,i-1);
+  rows.forEach(r=>r.classList.remove('sel'));rows[i].classList.add('sel');
+  document.getElementById('sb-rec').textContent='Ieraksts '+(i+1)+'/'+rows.length;
+}
+</script>
+</body>
+</html>
