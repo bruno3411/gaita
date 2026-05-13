@@ -118,11 +118,16 @@
               <col style="width:128px">
               <col style="width:52px">
               <col style="width:auto">
+              <col style="width:58px">
             </colgroup>
             <thead>
               <tr>
-                <th colspan="7" style="font-size:12px;font-weight:bold;color:#000;border-bottom:1px solid #808080;padding:3px 4px;">Notikumu saraksts</th>
-                <th style="border-bottom:1px solid #808080;vertical-align:middle;text-align:left;"><span class="nav-jina">Nav JINA</span></th>
+                <th colspan="9" style="font-size:12px;font-weight:bold;color:#000;border-bottom:1px solid #808080;padding:3px 4px;display:table-cell;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>Notikumu saraksts</span>
+                    <span class="nav-jina">Nav JINA</span>
+                  </div>
+                </th>
               </tr>
               <tr>
                 <th>Lietas Nr.&#10;(RINA)</th>
@@ -133,6 +138,7 @@
                 <th>Notikuma laiks</th>
                 <th>SED&#10;versija</th>
                 <th>Apstrādes statuss</th>
+                <th style="text-align:center;"><span class="nav-jina">Nav JINA</span></th>
               </tr>
             </thead>
             <tbody id="bn"></tbody>
@@ -257,6 +263,8 @@ function mkSelectable(tbody,blkName){
   for(let r=0;r<5;r++){
     const tr=document.createElement('tr');if(r===0)tr.classList.add('sel');
     cols.forEach(c=>{const td=document.createElement('td');td.appendChild(c==='d'?mkDrop():mkPlain());tr.appendChild(td);});
+    // Nav JINA checkbox
+    const tdj=document.createElement('td');tdj.appendChild(mkCheck(false));tr.appendChild(tdj);
     t.appendChild(tr);
   }
   mkSelectable(t,'NOTIKUMI');
