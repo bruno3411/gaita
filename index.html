@@ -86,9 +86,6 @@
   /* Red rows (no RINA ID) */
   .grid tr.no-rina td { color:#cc0000; }
   .grid tr.no-rina.sel td { background:#000080; color:#ffaaaa; }
-
-  /* Nav JINA tooltip */
-  #jina-tip { display:none; position:fixed; background:#ffffe1; border:1px solid #808080; padding:2px 6px; font-size:10px; font-weight:bold; color:#cc0000; pointer-events:none; z-index:9999; white-space:nowrap; box-shadow:1px 1px 2px rgba(0,0,0,0.3); }
 </style>
 </head>
 <body>
@@ -106,21 +103,15 @@
 
     <!-- BLOCK 1: Notikumu saraksts -->
     <div class="blk">
+      <div class="blk-t">Notikumu saraksts</div>
       <div class="grid">
         <table>
           <colgroup>
             <col style="width:72px"><col style="width:108px"><col style="width:90px">
             <col style="width:185px"><col style="width:62px"><col style="width:126px">
-            <col style="width:46px"><col style="width:auto">
+            <col style="width:46px"><col style="width:auto"><col style="width:56px">
           </colgroup>
           <thead>
-            <tr>
-              <th colspan="8" style="font-size:11px;font-weight:bold;color:#000;border-bottom:1px solid #999;padding:2px 4px;height:20px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span>Notikumu saraksts</span>
-                </div>
-              </th>
-            </tr>
             <tr>
               <th>Lietas Nr.&#10;(RINA)</th>
               <th>RINA ID</th>
@@ -130,6 +121,7 @@
               <th>Notikuma laiks</th>
               <th>SED&#10;versija</th>
               <th>Apstrādes statuss</th>
+              <th style="text-align:center;"><span class="nav-jina">Nav JINA</span></th>
             </tr>
           </thead>
           <tbody id="bn"></tbody>
@@ -166,7 +158,7 @@
     <!-- BLOCK 3: Apstrādes gaita -->
     <div class="blk" style="flex:1;display:flex;flex-direction:column;">
       <div class="blk-t">Apstrādes gaita</div>
-      <div class="grid" style="flex:1;overflow-y:auto;">
+      <div class="grid" style="flex:1;overflow-y:auto;background:#d4d0c8;">
         <table>
           <colgroup>
             <col style="width:auto"><col style="width:126px"><col style="width:106px"><col style="width:42px">
@@ -209,25 +201,8 @@
   </div>
 </div>
 
-<!-- Nav JINA tooltip -->
-<div id="jina-tip">Nav JINA</div>
-
 <script>
 const ARR=`<svg width="8" height="7" viewBox="0 0 8 7"><polygon points="0,0 8,0 4,7" fill="#000060"/></svg>`;
-
-// Nav JINA tooltip on no-rina rows
-const jinaTip = document.getElementById('jina-tip');
-document.getElementById('bn').addEventListener('mousemove', e=>{
-  const row = e.target.closest('tr');
-  if(row && row.classList.contains('no-rina')){
-    jinaTip.style.display='block';
-    jinaTip.style.left=(e.clientX+12)+'px';
-    jinaTip.style.top=(e.clientY+12)+'px';
-  } else {
-    jinaTip.style.display='none';
-  }
-});
-document.getElementById('bn').addEventListener('mouseleave', ()=>{ jinaTip.style.display='none'; });
 
 // ── Data ──
 const notikumiData = [
@@ -293,6 +268,7 @@ function mkCheck(chk=false){
       td.appendChild(dropCols.has(ci)?mkDrop(v,ci):mkPlain(v));
       tr.appendChild(td);
     });
+    const tdj=document.createElement('td'); tdj.appendChild(mkCheck(noRina)); tr.appendChild(tdj);
     t.appendChild(tr);
   });
   mkSelectable(t,'NOTIKUMI', notikumiData.length);
